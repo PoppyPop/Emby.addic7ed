@@ -46,8 +46,10 @@ namespace Emby.addic7ed
             }
             catch (Exception e)
             {
-                return null;
+                
             }
+
+            return new List<RemoteSubtitleInfo>();
         }
 
         private async Task<IEnumerable<RemoteSubtitleInfo>> SearchRecursive(SubtitleSearchRequest request, int level)
