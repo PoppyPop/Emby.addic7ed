@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Emby.addic7ed": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Apps\\embyserver-win-x64-3.3.1.18\\system\\EmbyServer.exe"
+    }
+  }
+}
