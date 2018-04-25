@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MediaBrowser.Model.Serialization;
 
 namespace Emby.addic7ed.Model
 {
     public class RemoteSrt
     {
-        public string RemoteUrl { get; set; }
+        public string RemoteId { get; set; }
 
-        public string RemoteUrlEncoded => Convert.ToBase64String(Encoding.Unicode.GetBytes(LanguageCode + "|" + RemoteUrl));
+        public string RemoteUrl { get; set; }
 
         public string LanguageCode { get; set; }
 
         public string Release { get; set; }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return Release + " | " + LanguageCode; }
+        }
 
         public string LongLanguage
         {
@@ -23,23 +27,29 @@ namespace Emby.addic7ed.Model
                 switch (value)
                 {
                     case "French":
-                        LanguageCode = "FRE";
+                        LanguageCode = "fre";
                         break;
                     case "English":
-                        LanguageCode = "ENG";
+                        LanguageCode = "eng";
+                        break;
+                    default:
+                        LanguageCode = "oth";
                         break;
                 }
             }
         }
 
-        public static KeyValuePair<string, string> DecodeId(string id)
+        public string EncodeId(IJsonSerializer json)
+        {
+           return Convert.ToBase64String(Encoding.Unicode.GetBytes(json.SerializeToString(this)));
+        }
+
+        public static RemoteSrt DecodeId(string id, IJsonSerializer json)
         {
             byte[] decodedBytes = Convert.FromBase64String(id);
             var str = Encoding.Unicode.GetString(decodedBytes);
 
-            var split = str.Split('|');
-
-            return new KeyValuePair<string, string>(split[1], split[0]);
+            return json.DeserializeFromString<RemoteSrt>(str);
         }
     }
 }

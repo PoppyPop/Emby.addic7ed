@@ -30,9 +30,11 @@ namespace Emby.addic7ed
 
         private readonly RemoteCall _remote;
         private readonly CacheStorage _cache;
+        private readonly IJsonSerializer _json;
 
         public Addic7edSubtitleProvider(IHttpClient httpClient, IFileSystem fileSystem, IApplicationPaths appPaths, IJsonSerializer json)
         {
+            _json = json;
             _remote = new RemoteCall(httpClient);
             _cache = new CacheStorage(json, appPaths, fileSystem);
         }
@@ -42,23 +44,22 @@ namespace Emby.addic7ed
         {
             try
             {
-                return await SearchRecursive(request, 0);
+                return await SearchRecursive(request, null);
             }
             catch (Exception e)
             {
-                
+
             }
 
             return new List<RemoteSubtitleInfo>();
         }
 
-        private async Task<IEnumerable<RemoteSubtitleInfo>> SearchRecursive(SubtitleSearchRequest request, int level)
+        private async Task<IEnumerable<RemoteSubtitleInfo>> SearchRecursive(SubtitleSearchRequest request, bool? recurse)
         {
             var result = new List<RemoteSubtitleInfo>();
 
-            level++;
             // to far we giveup
-            if (level <= 3 && request.ContentType == VideoContentType.Episode && request.ParentIndexNumber.HasValue && request.IndexNumber.HasValue)
+            if (request.ContentType == VideoContentType.Episode && request.ParentIndexNumber.HasValue && request.IndexNumber.HasValue)
             {
                 var series = request.SeriesName;
                 var episodeNumber = request.IndexNumber.Value;
@@ -73,9 +74,14 @@ namespace Emby.addic7ed
 
                 if (!matchingSeries.Any())
                 {
-                    // No cache entry
-                    await GetRemoteSeries();
-                    return await SearchRecursive(request, level);
+                    if (!recurse.HasValue)
+                    {
+                        // No cache entry
+                        await GetRemoteSeries();
+                        return await SearchRecursive(request, false);
+                    }
+
+                    return result;
                 }
 
                 if (matchingSeries.Count == 1)
@@ -88,23 +94,31 @@ namespace Emby.addic7ed
 
                     if (episode == null)
                     {
-                        // No cache entry
-                        await GetRemoteEpisodes(serie.Id, seasonId);
-                        return await SearchRecursive(request, level);
+                        if (!recurse.HasValue || !recurse.Value)
+                        {
+                            // No cache entry
+                            await GetRemoteEpisodes(serie.Id, seasonId);
+                            return await SearchRecursive(request, true);
+                        }
+
+                        return result;
                     }
 
                     var srts = await GetRemoteEpisodeDetail(episode);
 
                     foreach (var srt in srts)
                     {
-                        result.Add(new RemoteSubtitleInfo
+                        if (string.IsNullOrEmpty(request.Language) || srt.LanguageCode == request.Language)
                         {
-                            Id = srt.RemoteUrlEncoded,
-                            Name = srt.Name,
-                            Author = Plugin.StaticName,
-                            ProviderName = Plugin.StaticName,
-                            ThreeLetterISOLanguageName = srt.LanguageCode
-                        });
+                            result.Add(new RemoteSubtitleInfo
+                            {
+                                Id = srt.EncodeId(_json),
+                                Name = srt.Name,
+                                Author = Plugin.StaticName,
+                                ProviderName = Plugin.StaticName,
+                                ThreeLetterISOLanguageName = srt.LanguageCode
+                            });
+                        }
                     }
                 }
             }
@@ -173,7 +187,7 @@ namespace Emby.addic7ed
 
                                 srts.Add(new RemoteSrt
                                 {
-                                    Name = name,
+                                    RemoteId = episode.RemoteId,
                                     LongLanguage = lang.InnerText.Trim(),
                                     Release = releaseTeam,
                                     RemoteUrl = dlLink,
@@ -247,15 +261,15 @@ namespace Emby.addic7ed
 
         public async Task<SubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
         {
-            var decode = RemoteSrt.DecodeId(id);
+            var decode = RemoteSrt.DecodeId(id, _json);
 
-            var stream = await _remote.GetSubtitles(decode.Key).ConfigureAwait(false);
+            var res = await _remote.GetSubtitles(decode).ConfigureAwait(false);
 
             return new SubtitleResponse
             {
-                Format = "srt",
-                Stream = stream,
-                Language = decode.Value,
+                Format = res.Value,
+                Stream = res.Key,
+                Language = decode.LanguageCode,
             };
         }
     }

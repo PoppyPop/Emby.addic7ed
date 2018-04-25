@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Emby.addic7ed.Model;
 using MediaBrowser.Common.Net;
@@ -65,17 +66,31 @@ namespace Emby.addic7ed.Data
             }
         }
 
-        public async Task<Stream> GetSubtitles(string url)
+        public async Task<KeyValuePair<Stream, string>> GetSubtitles(RemoteSrt srt)
         {
             var httpOpt = BaseRequestOptions;
-            httpOpt.Url = ServiceUrl + url;
+            httpOpt.Referer = ServiceUrl + "/re_episode.php?ep=" + srt.RemoteId;
+            httpOpt.Url = ServiceUrl + srt.RemoteUrl;
 
             using (HttpResponseInfo httpResponseInfo = await _httpClient.GetResponse(httpOpt).ConfigureAwait(false))
             {
+                var srtType = httpResponseInfo.ContentType.Substring(5);
+
                 MemoryStream ms = new MemoryStream();
                 await httpResponseInfo.Content.CopyToAsync(ms).ConfigureAwait(false);
-                return ms;
+                ms.Position = 0L;
+                return new KeyValuePair<Stream, string>(ms, srtType);
             }
+
+            //    using (HttpResponseInfo httpResponseInfo = await _httpClient.GetResponse(httpOpt).ConfigureAwait(false))
+            //{
+            //    using (StreamReader streamReader = new StreamReader(httpResponseInfo.Content))
+            //    {
+            //        var resulaty = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+            //    }
+            //}
+
+            //return null;
         }
     }
 }
