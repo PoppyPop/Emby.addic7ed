@@ -1,0 +1,17 @@
+language: csharp
+mono: none
+dotnet: 1.1.9
+solution: Emby.addic7ed.sln
+install:
+- dotnet restore
+script:
+- dotnet build -c Release
+deploy:
+  provider: releases
+  api_key:
+    secure: ZgsLboq8iuuOOw2d/uOj1AUb0fP8/m6ygy7J+mEEgJYYzS7EBJopOVpZkeJ3DwNVSiA/8l7tOlcFmkdGGoi46oHxxOT6d5FU0sN41kt4g7+ssGmytVp/yxIiTzVTrGUdXOw2SanGCgKsQ8WSZw7Fxg+n5UsQys/Yvfvrab+CTbc2sd+Cu8HoQdRg/ECf0UT5lRK3LSMo3AAF2Bl13ikZvJGMHt9AeVKIt/ERUCLvhnamP/ycsgCTEQ/7w9zkiisKxKrj/qqXRkVKsi2iGNtMhJSmHQv5APfXDz/oGB0YvP8rlwuBlHpgVwNvtISdbk4T7FH2g2ZJYoM5SbUFRaO3aj7XfTRo81UvU4Q4eOVsGzqYTdsWjZuQJEysXW+GnrIbvyHW9kdkgEyTFZWmSwg36V/jdUG9cG5mR5t66MYyXJ8wEMEpNmxXWf5ZiNdPtwn0FmZ0OpRnWvD57f9mG2CdlXqbuTaAey95OYe+pncjWOTwQNcc2Ji/4KxhDweW5irxeWOLkQd9SP/2rpC0Cs1VKD1md4oco7OxDkkOZrpFNLu0xHB4/bn9BrdIdWj2GX5B0Iba9b/PuU93EZn6hxsgc+rBZb23qNZ+q4FT3kCFz+6LZrkEE3rC8pXZUvKlMPKnb9vQZFbe45II9oWYmcwsubQgkW6RF5OgP4FRAt1XfqQ=
+  file: Emby.addic7ed/bin/Release/netstandard1.3/Emby.addic7ed.dll
+  skip_cleanup: true
+  on:
+    repo: PoppyPop/Emby.addic7ed
+    tags: true
