@@ -5,6 +5,7 @@
 	<AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>2.0.0</Version>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,7 +28,7 @@
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Debug&quot; (&#xD;&#xA;   xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.0\programdata\plugins\&quot; /y&#xD;&#xA;)" />
+    <Exec Command="" />
 	<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.18\programdata\plugins\&quot; /y" />
   </Target>
 </Project>
