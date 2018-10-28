@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
 	<AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediaBrowser.Server.Core" Version="3.3.36-beta" />
+    <PackageReference Include="MediaBrowser.Server.Core" Version="3.6.0.55-beta" />
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
@@ -25,4 +25,8 @@
     <Folder Include="hap\" />
   </ItemGroup>
   
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.0\programdata\plugins\&quot; /y" />
+	<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.18\programdata\plugins\&quot; /y" />
+  </Target>
 </Project>
