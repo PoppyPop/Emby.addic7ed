@@ -27,7 +27,7 @@
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if $(ConfigurationName) == Debug xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.0\programdata\plugins\&quot; /y" />
+    <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Debug&quot; (&#xD;&#xA;   xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.0\programdata\plugins\&quot; /y&#xD;&#xA;)" />
 	<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.18\programdata\plugins\&quot; /y" />
   </Target>
 </Project>
