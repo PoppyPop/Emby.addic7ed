@@ -1,7 +1,7 @@
 language: csharp
 mono: none
 dist: trusty
-dotnet: 1.1.9
+dotnet: 2.0.0
 solution: Emby.addic7ed.sln
 install:
 - dotnet restore
