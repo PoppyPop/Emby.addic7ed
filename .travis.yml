@@ -11,7 +11,8 @@ deploy:
   provider: releases
   api_key:
     secure: hjUx9n2BqZbrzW8Oldnbf/pv7+h5KVBTPYb22gSljhuprqDadBMMWDrKIgOBBKclz7qYXrTkRgBsz6BIxztjxLEO3qbW0IVprfKWNVE8rqXeX2atZ9sV0bv2yexVD64r7h3nIPM3rLDr510MzGksizXKqlccqecH94X1Y47Ajdc3sJREA77q+TJ1UdwT2Rbv2nadUhKoQBHs8NxYvtnwG0M2K2EojD7Iw4jArJWcZG+17GTNbEKjt8pHyGxbWugwlk8l+sHysKAIRhOq9blsOtpQ5N8VPfLdZsWmnfluRNc3wIuwnKj4CNc6YkdqwtaMvZSRdCHyLb6cS8MjlUyZMIw8kOa2ABHN+2ySV4WVvwwjuG8GS0odZ6B5jzASRNstYRs5IMlRFkBxDyC7vqN3eUr2UAddBZC5l06iUxqaFVmTTXVDyKsv/bjWSAVC84VXfH0wGozHic2UTUAnY3lWzqbLyGMiuCCFwU+oYyAlUfz+nMhN83Jt8d4+1/lnrECkXJjpvPjPpTqYKfYqOZyVWFq3U4IKm8kpOMa0tzsRWmKidXsisyh0SymP4MXKokqzWD7s8KmYrI7DfklwB7XjmjxHbBO95sX6YZE3RISa6/Ru/tVrpnuD4KJiO2oq9HGwNxElxKz3MR/M84xwRaQqCiSvVEfJx+eU7/8m8oSquTA=
-  file: Emby.addic7ed/bin/Release/netstandard1.3/Emby.addic7ed.dll
+  file_glob: true
+  file: Emby.addic7ed/bin/Release/*/Emby.addic7ed.dll
   skip_cleanup: true
   on:
     repo: PoppyPop/Emby.addic7ed
