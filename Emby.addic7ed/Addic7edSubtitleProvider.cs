@@ -29,6 +29,8 @@ namespace Emby.addic7ed
 
         private readonly string self_release_pattern = "Version (.+), (?:[0-9]+).(?:[0-9]+) MBs";
 
+        private readonly string series_year_pattern = @".* (\(\d+\))$";
+
         private readonly RemoteCall _remote;
         private readonly CacheStorage _cache;
         private readonly IJsonSerializer _json;
@@ -57,6 +59,18 @@ namespace Emby.addic7ed
             return new List<RemoteSubtitleInfo>();
         }
 
+        private string CleanSerieName(string serie)
+        {
+            Regex release = new Regex(self_release_pattern);
+            var regMatch = release.Match(serie);
+            if (regMatch.Groups[1].Success)
+            {
+                return serie.Replace(regMatch.Groups[1].Value, "").Trim();
+            }
+
+            return serie;
+        }
+
         private async Task<IEnumerable<RemoteSubtitleInfo>> SearchRecursive(SubtitleSearchRequest request, bool? recurse)
         {
             var result = new List<RemoteSubtitleInfo>();
@@ -64,18 +78,26 @@ namespace Emby.addic7ed
             // to far we giveup
             if (request.ContentType == VideoContentType.Episode && request.ParentIndexNumber.HasValue && request.IndexNumber.HasValue)
             {
-                var series = request.SeriesName;
+                var series = request.SeriesName.Trim();
                 var episodeNumber = request.IndexNumber.Value;
                 var seasonId = request.ParentIndexNumber.Value;
 
                 //series = series.ToLower().Replace(" ", "_").Replace("$#*!", "shit")
                 //    .Replace("'", ""); // need this for $#*! My Dad Says and That 70s show
 
-                _logger.Error("Search {0} | {1} | {2}", series, episodeNumber, seasonId);
+                _logger.Debug("Search {0} | {1} | {2}", series, episodeNumber, seasonId);
 
                 var cacheSeries = _cache.GetSeries;
 
                 var matchingSeries = cacheSeries.Where(c => c.Levenshtein(series) < 3).ToList();
+
+                if (!matchingSeries.Any())
+                {
+                    // Try to remove year in serie name
+                    series = CleanSerieName(series);
+
+                    matchingSeries = cacheSeries.Where(c => c.Levenshtein(series) < 3).ToList();
+                }
 
                 if (!matchingSeries.Any())
                 {
