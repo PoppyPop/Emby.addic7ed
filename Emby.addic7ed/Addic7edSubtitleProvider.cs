@@ -61,7 +61,7 @@ namespace Emby.addic7ed
 
         private string CleanSerieName(string serie)
         {
-            Regex release = new Regex(self_release_pattern);
+            Regex release = new Regex(series_year_pattern);
             var regMatch = release.Match(serie);
             if (regMatch.Groups[1].Success)
             {
@@ -95,6 +95,8 @@ namespace Emby.addic7ed
                 {
                     // Try to remove year in serie name
                     series = CleanSerieName(series);
+
+                    _logger.Debug("Search {0} | {1} | {2}", series, episodeNumber, seasonId);
 
                     matchingSeries = cacheSeries.Where(c => c.Levenshtein(series) < 3).ToList();
                 }
