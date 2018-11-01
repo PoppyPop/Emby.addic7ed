@@ -12,6 +12,7 @@ using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Controller.Subtitles;
 using MediaBrowser.Model.IO;
+using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Providers;
 using MediaBrowser.Model.Serialization;
 
@@ -26,17 +27,19 @@ namespace Emby.addic7ed
 
         public IEnumerable<VideoContentType> SupportedMediaTypes => new List<VideoContentType> { VideoContentType.Episode };
 
-        private readonly string self_release_pattern = "Version (.+), ([0-9]+).([0-9])+ MBs";
+        private readonly string self_release_pattern = "Version (.+), (?:[0-9]+).(?:[0-9]+) MBs";
 
         private readonly RemoteCall _remote;
         private readonly CacheStorage _cache;
         private readonly IJsonSerializer _json;
+        private readonly ILogger _logger;
 
-        public Addic7edSubtitleProvider(IHttpClient httpClient, IFileSystem fileSystem, IApplicationPaths appPaths, IJsonSerializer json)
+        public Addic7edSubtitleProvider(IHttpClient httpClient, IFileSystem fileSystem, IApplicationPaths appPaths, IJsonSerializer json, ILogger logger)
         {
             _json = json;
             _remote = new RemoteCall(httpClient);
             _cache = new CacheStorage(json, appPaths, fileSystem);
+            _logger = logger;
         }
 
         public async Task<IEnumerable<RemoteSubtitleInfo>> Search(SubtitleSearchRequest request,
@@ -48,7 +51,7 @@ namespace Emby.addic7ed
             }
             catch (Exception e)
             {
-
+                _logger.ErrorException("Error Subtitle", e);
             }
 
             return new List<RemoteSubtitleInfo>();
@@ -67,6 +70,8 @@ namespace Emby.addic7ed
 
                 //series = series.ToLower().Replace(" ", "_").Replace("$#*!", "shit")
                 //    .Replace("'", ""); // need this for $#*! My Dad Says and That 70s show
+
+                _logger.Error("Search {0} | {1} | {2}", series, episodeNumber, seasonId);
 
                 var cacheSeries = _cache.GetSeries;
 
