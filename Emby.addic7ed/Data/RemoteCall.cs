@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Emby.addic7ed.Model;
+using MediaBrowser.Common.Net;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Emby.addic7ed.Model;
-using MediaBrowser.Common.Net;
 
 namespace Emby.addic7ed.Data
 {
@@ -26,7 +26,7 @@ namespace Emby.addic7ed.Data
 
         public async Task<string> GetRemoteSeries()
         {
-            var httpOpt = BaseRequestOptions;
+            HttpRequestOptions httpOpt = BaseRequestOptions;
             httpOpt.Url = ServiceUrl + "/ajax_getShows.php";
 
             using (HttpResponseInfo httpResponseInfo = await _httpClient.GetResponse(httpOpt).ConfigureAwait(false))
@@ -40,7 +40,7 @@ namespace Emby.addic7ed.Data
 
         public async Task<string> GetRemoteEpisodes(long showId, long season)
         {
-            var httpOpt = BaseRequestOptions;
+            HttpRequestOptions httpOpt = BaseRequestOptions;
             httpOpt.Url = ServiceUrl + string.Format("/ajax_getEpisodes.php?showID={0}&season={1}", showId, season);
 
             using (HttpResponseInfo httpResponseInfo = await _httpClient.GetResponse(httpOpt).ConfigureAwait(false))
@@ -54,7 +54,7 @@ namespace Emby.addic7ed.Data
 
         public async Task<string> GetRemoteEpisodeDetail(RemoteEpisode episode)
         {
-            var httpOpt = BaseRequestOptions;
+            HttpRequestOptions httpOpt = BaseRequestOptions;
             httpOpt.Url = ServiceUrl + string.Format("/re_episode.php?ep={0}", episode.RemoteId);
 
             using (HttpResponseInfo httpResponseInfo = await _httpClient.GetResponse(httpOpt).ConfigureAwait(false))
@@ -68,13 +68,19 @@ namespace Emby.addic7ed.Data
 
         public async Task<KeyValuePair<Stream, string>> GetSubtitles(RemoteSrt srt)
         {
-            var httpOpt = BaseRequestOptions;
-            httpOpt.Referer = ServiceUrl + "/re_episode.php?ep=" + srt.RemoteId;
+            HttpRequestOptions httpOpt = BaseRequestOptions;
+            httpOpt.Referer = ServiceUrl + srt.GetReferer();
             httpOpt.Url = ServiceUrl + srt.RemoteUrl;
+            httpOpt.AcceptHeader =
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
 
             using (HttpResponseInfo httpResponseInfo = await _httpClient.GetResponse(httpOpt).ConfigureAwait(false))
             {
-                var srtType = httpResponseInfo.ContentType.Substring(5);
+                string srtType = "srt";
+                if (!string.IsNullOrEmpty(httpResponseInfo.ContentType))
+                {
+                    srtType = httpResponseInfo.ContentType.Substring(5);
+                }
 
                 MemoryStream ms = new MemoryStream();
                 await httpResponseInfo.Content.CopyToAsync(ms).ConfigureAwait(false);

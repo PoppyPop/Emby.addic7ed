@@ -27,5 +27,9 @@
   <ItemGroup>
     <Folder Include="hap\" />
   </ItemGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;C:\Apps\embyserver-win-x64-3.3.1.18\programdata\plugins\&quot; /y" />
+  </Target>
 
 </Project>

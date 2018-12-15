@@ -133,7 +133,7 @@ namespace Emby.addic7ed
                         return result;
                     }
 
-                    var srts = await GetRemoteEpisodeDetail(episode);
+                    var srts = await GetRemoteEpisodeDetail(episode, serie.Name);
 
                     foreach (var srt in srts)
                     {
@@ -155,7 +155,7 @@ namespace Emby.addic7ed
             return result;
         }
 
-        public async Task<List<RemoteSrt>> GetRemoteEpisodeDetail(RemoteEpisode episode)
+        public async Task<List<RemoteSrt>> GetRemoteEpisodeDetail(RemoteEpisode episode, string showName)
         {
             List<RemoteSrt> srts = new List<RemoteSrt>();
 
@@ -216,6 +216,9 @@ namespace Emby.addic7ed
 
                                 srts.Add(new RemoteSrt
                                 {
+                                    ShowName = showName,
+                                    SeasonId = episode.SeasonId,
+                                    EpisodeId = episode.Id,
                                     RemoteId = episode.RemoteId,
                                     LongLanguage = lang.InnerText.Trim(),
                                     Release = releaseTeam,

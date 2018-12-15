@@ -7,6 +7,12 @@ namespace Emby.addic7ed.Model
 {
     public class RemoteSrt
     {
+        public string ShowName { get; set; }
+
+        public long SeasonId { get; set; }
+
+        public long EpisodeId { get; set; }
+
         public string RemoteId { get; set; }
 
         public string RemoteUrl { get; set; }
@@ -50,6 +56,11 @@ namespace Emby.addic7ed.Model
             var str = Encoding.Unicode.GetString(decodedBytes);
 
             return json.DeserializeFromString<RemoteSrt>(str);
+        }
+
+        public string GetReferer()
+        {
+            return string.Concat("/serie/", this.ShowName, "/", SeasonId, "/", EpisodeId, "/0");
         }
     }
 }
